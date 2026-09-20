@@ -23,6 +23,10 @@ export const sapagoLiveChatConfig: Partial<Record<BrandId, SapagoLiveChatConfig>
     ...liveChatDefaults,
     publicKey: "lc_pk_5pp-nnpRO9EPinQ5yVMjoStAuYMHP83r",
   },
+  majika: {
+    ...liveChatDefaults,
+    publicKey: "lc_pk_OKL1Fhcu8G36cCnz3zkb_CQxPijIS7N-",
+  },
 };
 
 export type SapagoConfig = {

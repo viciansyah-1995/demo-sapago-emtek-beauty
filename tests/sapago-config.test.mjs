@@ -47,12 +47,12 @@ test("switching brand produces independent routing", () => {
   assert.equal(second.searchParams.get("brand"), "majika");
 });
 
-test("live chat uses separate public keys for FFAR and Wondermist", () => {
+test("each brand uses a separate live-chat public key", () => {
   assert.match(sapagoLiveChatConfig.ffar.publicKey, /^lc_pk_/);
   assert.match(sapagoLiveChatConfig.wondermist.publicKey, /^lc_pk_/);
-  assert.notEqual(
-    sapagoLiveChatConfig.ffar.publicKey,
-    sapagoLiveChatConfig.wondermist.publicKey,
+  assert.match(sapagoLiveChatConfig.majika.publicKey, /^lc_pk_/);
+  assert.equal(
+    new Set(Object.values(sapagoLiveChatConfig).map(({ publicKey }) => publicKey)).size,
+    3,
   );
-  assert.equal(sapagoLiveChatConfig.majika, undefined);
 });
