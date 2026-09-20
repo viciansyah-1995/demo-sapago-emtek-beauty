@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ArrowUpRight, Play } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -71,7 +72,9 @@ export default function Home() {
       </a>
       <div className="demo-bar">
         <a href="#top" className="sapago-wordmark" aria-label="SapaGo AI demo">
-          sapa<span>go</span>
+          <span className="sapago-logo">
+            <Image src="/assets/sapago/sapago-logo.png" alt="SapaGo" fill priority sizes="48px" />
+          </span>
           <small>AI DEMO</small>
         </a>
         <TabsList className="brand-tabs" aria-label="Pilih brand">

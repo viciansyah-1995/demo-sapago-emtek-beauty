@@ -8,8 +8,12 @@ export const metadata: Metadata = {
     "codex-preview": "development",
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: {
+      url: "/assets/sapago/sapago-logo.png?v=20260920",
+      type: "image/png",
+    },
+    shortcut: "/assets/sapago/sapago-logo.png?v=20260920",
+    apple: "/assets/sapago/sapago-logo.png?v=20260920",
   },
 };
 
