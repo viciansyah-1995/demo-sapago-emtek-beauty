@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildWidgetUrl } from "../data/sapago.ts";
+import { buildWidgetUrl, sapagoLiveChatConfig } from "../data/sapago.ts";
 const config = {
   widgetUrl: "https://widget.example.test/embed?theme=clean",
   agentId: "ffar-demo",
@@ -45,4 +45,14 @@ test("switching brand produces independent routing", () => {
   assert.notEqual(first.searchParams.get("sessionId"), second.searchParams.get("sessionId"));
   assert.notEqual(first.searchParams.get("agentId"), second.searchParams.get("agentId"));
   assert.equal(second.searchParams.get("brand"), "majika");
+});
+
+test("live chat uses separate public keys for FFAR and Wondermist", () => {
+  assert.match(sapagoLiveChatConfig.ffar.publicKey, /^lc_pk_/);
+  assert.match(sapagoLiveChatConfig.wondermist.publicKey, /^lc_pk_/);
+  assert.notEqual(
+    sapagoLiveChatConfig.ffar.publicKey,
+    sapagoLiveChatConfig.wondermist.publicKey,
+  );
+  assert.equal(sapagoLiveChatConfig.majika, undefined);
 });

@@ -1,17 +1,102 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Script from "next/script";
 import { ArrowUpRight, Check, Copy, MessageCircle, Send, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { buildWidgetUrl, sapagoConfig } from "@/data/sapago";
+import {
+  buildWidgetUrl,
+  sapagoConfig,
+  sapagoLiveChatConfig,
+  type SapagoLiveChatConfig,
+} from "@/data/sapago";
 import type { Brand } from "@/data/brands";
 
 export type ChatIntent = { text: string; revision: number };
+
+const liveChatFrameSelector = 'iframe[title="Sapago Live Chat"]';
+
+function findLiveChatFrame(brandId: string) {
+  return document.querySelector<HTMLIFrameElement>(
+    `${liveChatFrameSelector}[data-sapago-brand="${brandId}"]`,
+  );
+}
+
+function showOnlyLiveChatFrame(brandId?: string) {
+  document.querySelectorAll<HTMLIFrameElement>(liveChatFrameSelector).forEach((frame) => {
+    frame.style.display = brandId && frame.dataset.sapagoBrand === brandId ? "block" : "none";
+  });
+}
+
+function NativeSapagoWidget({
+  brand,
+  config,
+  open,
+  onOpenChange,
+}: {
+  brand: Brand;
+  config: SapagoLiveChatConfig;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const claimFrame = useCallback(() => {
+    let frame = findLiveChatFrame(brand.id);
+    if (!frame) {
+      const unclaimed = Array.from(
+        document.querySelectorAll<HTMLIFrameElement>(liveChatFrameSelector),
+      ).filter((candidate) => !candidate.dataset.sapagoBrand);
+      frame = unclaimed.at(-1) ?? null;
+      if (frame) frame.dataset.sapagoBrand = brand.id;
+    }
+    showOnlyLiveChatFrame(brand.id);
+    return frame;
+  }, [brand.id]);
+
+  useEffect(() => {
+    showOnlyLiveChatFrame(brand.id);
+    return () => showOnlyLiveChatFrame();
+  }, [brand.id]);
+
+  useEffect(() => {
+    if (!open) return;
+    const frame = claimFrame();
+    if (frame) {
+      frame.focus();
+      frame.animate(
+        [
+          { transform: "scale(1)" },
+          { transform: "scale(1.08)" },
+          { transform: "scale(1)" },
+        ],
+        { duration: 520, easing: "ease-out" },
+      );
+    }
+    onOpenChange(false);
+  }, [claimFrame, open, onOpenChange]);
+
+  return (
+    <Script
+      id={`sapago-livechat-${brand.id}`}
+      src={`${config.scriptUrl}?brand=${brand.id}`}
+      strategy="afterInteractive"
+      data-api-key={config.publicKey}
+      data-api-url={config.apiUrl}
+      data-widget-url={config.widgetUrl}
+      onLoad={() => {
+        claimFrame();
+      }}
+      onReady={() => {
+        claimFrame();
+      }}
+    />
+  );
+}
+
 /**
  * Iframe adapter. The bridge protocol in docs/SAPAGO-INTEGRATION.md is a
  * proposed adapter contract, NOT an assumed public SapaGo SDK.
  * No catalogue responses are generated in this frontend.
  */
-export function SapagoWidget({
+function DemoSapagoWidget({
   brand,
   open,
   onOpenChange,
@@ -242,4 +327,17 @@ export function SapagoWidget({
       </Dialog>
     </>
   );
+}
+
+export function SapagoWidget(props: {
+  brand: Brand;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  intent: ChatIntent;
+}) {
+  const liveChat = sapagoLiveChatConfig[props.brand.id];
+  if (liveChat) {
+    return <NativeSapagoWidget {...props} config={liveChat} />;
+  }
+  return <DemoSapagoWidget {...props} />;
 }

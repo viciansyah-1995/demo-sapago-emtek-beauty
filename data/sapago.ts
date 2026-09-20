@@ -1,4 +1,30 @@
 import type { BrandId } from "./brands";
+
+export type SapagoLiveChatConfig = {
+  publicKey: string;
+  scriptUrl: string;
+  apiUrl: string;
+  widgetUrl: string;
+};
+
+const liveChatDefaults = {
+  scriptUrl: "https://sapago.id/livechat/widget.js",
+  apiUrl: "https://api.talky.id/v1/public/livechat",
+  widgetUrl: "https://sapago.id/livechat/widget",
+};
+
+// These lc_pk_ values are public widget identifiers supplied for browser embedding.
+export const sapagoLiveChatConfig: Partial<Record<BrandId, SapagoLiveChatConfig>> = {
+  ffar: {
+    ...liveChatDefaults,
+    publicKey: "lc_pk_0tnQmu7KN9RcL2eymk9R0-e_Sf9WOo92",
+  },
+  wondermist: {
+    ...liveChatDefaults,
+    publicKey: "lc_pk_5pp-nnpRO9EPinQ5yVMjoStAuYMHP83r",
+  },
+};
+
 export type SapagoConfig = {
   widgetUrl: string;
   agentId: string;
